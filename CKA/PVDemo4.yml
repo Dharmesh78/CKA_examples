@@ -1,0 +1,54 @@
+apiVersion : v1
+kind : PersistentVolume
+metadata :
+  name : kube-pv
+spec :
+  storageClassName : standard
+  capacity :
+    storage : 1Gi
+  volumeMode : Filesystem
+  accessModes :
+    - ReadWriteOnce
+  hostPath :
+    path : /etc/pv-store
+
+---
+
+apiVersion : v1
+kind : PersistentVolumeClaim
+metadata :
+  name : kube-pvc
+spec :
+  storageClassName : standard
+  resources :
+    requests :
+      storage : 1Gi
+  volumeMode : Filesystem
+  accessModes :
+    - ReadWriteOnce
+
+---
+
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : pv-podhostpath
+  labels :
+    name : pv-pod
+spec :
+  containers :
+    - name : pv-pod
+      image : nginx
+      volumeMounts :
+        - mountPath : /test-pd
+          name : test-volume
+      ports :
+        - containerPort : 80
+  nodeName: kworker1
+
+  volumes :
+    - name : test-volume
+      persistentVolumeClaim :
+        claimName : kube-pvc
+  

@@ -1,0 +1,53 @@
+apiVersion : v1
+kind : PersistentVolume
+metadata :
+  name : pv-rnd
+  labels : 
+    type : local
+spec :
+  storageClassName : manual
+  capacity : 
+    storage : 100Mi
+  accessModes :
+    - ReadWriteMany
+  hostPath : 
+    path : /pv/host-data-rnd
+    
+---
+
+
+apiVersion : v1
+kind : PersistentVolumeClaim
+metadata :
+  name : pvc-rnd
+  
+spec :
+  storageClassName : manual
+  resources :
+    requests :
+      storage : 100Mi
+  accessModes :
+    - ReadWriteMany
+    
+---
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : pv-pod
+  labels :
+    name : pv-pod
+spec :
+  containers : 
+    - name : pv-pod
+      image : nginx
+      volumeMounts : 
+        - mountPath : /test-pd
+          name : test-volume
+      ports :
+        - containerPort : 80
+  
+  volumes :
+    - name : test-volume
+      persistentVolumeClaim :
+        claimName : pvc-rnd

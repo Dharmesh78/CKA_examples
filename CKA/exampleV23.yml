@@ -18,5 +18,4 @@ spec:
   volumes:
     - name: test-volume
       persistentVolumeClaim:
-        claimName: kube-pv
-        
+        claimName: kube-pvc

@@ -1,3 +1,6 @@
+
+
+
 CKA SYLLABUS 
 
 STORAGE - 10%
@@ -182,7 +185,19 @@ QUESTION 1. create a new pod called admin-pod with image busybox. Allow it to be
    
    Question 03 ) Create a new deployment called web-proj-268 with image nginx:1.16 and one replica. Next, upgrade the deployment to version 1.17 using rolling update. 
 Make sure that the version upgrade is recorded in the resource annotation.
-   
+   apiVersion : v1
+kind : PersistentVolume
+metadata :
+  name : kube-pv
+spec :
+  storageClassName : standard
+  capacity : 
+    storage : 1Gi
+  volumeMode : Filesystem
+  accessModes :
+    - ReadWriteOnce
+  hostPath : 
+    path : /mnt/nginx
    51  g create deployment web-proj-268 --image=nginx:1.16
    or
    51  g create deployment web-proj-268 --image=nginx:1.16 -o yaml | tee example8.yaml
@@ -629,13 +644,631 @@ Q10) Get web-load-5461 pod details in json format and store it in a file at /opt
    32  g exec -it multicontainer-pod1 --container consumer -- /bin/bash
    
    
+  
+PERSISTENT VOLUME CLAIMS 
+
+  
+  
+demo 1 : WORKS WHEN DEFAULT PV IS ALREADY CONFIGURED 
+   
+   
+apiVersion : v1
+kind : PersistentVolume
+metadata :
+  name : kube-pv
+spec :
+  storageClassName : standard
+  capacity : 
+    storage : 1Gi
+  volumeMode : Filesystem
+  accessModes :
+    - ReadWriteOnce
+  hostPath : 
+    path : /mnt/nginx
+    
+    
+    
+    
+    
+apiVersion : v1
+kind : PersistentVolumeClaim
+metadata :
+  name : kube-pv
+spec :
+  resources :
+    requests :
+      storage : 1Gi
+  volumeMode : Filesystem
+  accessModes :
+    - ReadWriteOnce
+    
+    
+    
+apiVersion : v1
+kind : Pod
+metadata :
+  name : pv-pod
+  labels :
+    name : pv-pod
+spec :
+  containers : 
+    - name : pv-pod
+      image : nginx
+      volumeMounts : 
+        - mountPath : /test-pd
+          name : test-volume
+      ports :
+        - containerPort : 80
+  
+  volumes :
+    - name : test-volume
+      persistentVolumeClaim :
+        claimName : kube-pv
+  
+  
+  --------------------
+
+
+DEMO 2 : WORKS WITH NFS 
+
+
+  
+---
+PV
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 500Gi
+  nfs:
+    path: /
+    server: 10.218.47.252
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs
+  volumeMode: Filesystem
+  
+
+---
+PVC
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs
+  volumeMode: Filesystem
+  volumeName: nfs-pv
+  
+  
+  
+  
+  Demo 3:
+  ---
+  
+  
+---
+
+apiVersion : v1
+kind : PersistentVolume
+metadata :
+  name : kube-pv
+spec :
+  storageClassName : standard
+  capacity :
+    storage : 1Gi
+  volumeMode : Filesystem
+  accessModes :
+    - ReadWriteOnce
+  hostPath :
+    path : /etc/pv-store
+
+---
+
+apiVersion : v1
+kind : PersistentVolumeClaim
+metadata :
+  name : kube-pvc
+spec :
+  storageClassName : standard
+  resources :
+    requests :
+      storage : 1Gi
+  volumeMode : Filesystem
+  accessModes :
+    - ReadWriteOnce
+
+---
+
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : pv-podhostpath
+  labels :
+    name : pv-pod
+spec :
+  containers :
+    - name : pv-pod
+      image : nginx
+      volumeMounts :
+        - mountPath : /test-pd
+          name : test-volume
+      ports :
+        - containerPort : 80
+  nodeName: kworker1
+
+  volumes :
+    - name : test-volume
+      persistentVolumeClaim :
+        claimName : kube-pvc
+  
+
+
+
+
+
+
+DEMO 4 
+------
+
+
+apiVersion : v1
+kind : PersistentVolume
+metadata :
+  name : kube-pv
+  labels : 
+    type : local
+spec :
+  storageClassName : manual
+  capacity : 
+    storage : 1Gi
+  accessModes :
+    - ReadWriteOnce
+  hostPath : 
+    path : /mnt/datas
+    
+---
+
+
+apiVersion : v1
+kind : PersistentVolumeClaim
+metadata :
+  name : kube-pvc
+  
+spec :
+  storageClassName : manual
+  resources :
+    requests :
+      storage : 1Gi
+  accessModes :
+    - ReadWriteOnce
+    
+---
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : pv-pod
+  labels :
+    name : pv-pod
+spec :
+  containers : 
+    - name : pv-pod
+      image : nginx
+      volumeMounts : 
+        - mountPath : /test-pd
+          name : test-volume
+      ports :
+        - containerPort : 80
+  
+  volumes :
+    - name : test-volume
+      persistentVolumeClaim :
+        claimName : kube-pvc
+  
+
+
+
+LINKING PV WITH PVC 
+
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-name
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 40Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+    
+    
+    
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-name
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: pv-name
+
+
+ANOTHER REFERENCING VIA VOLUME TO CLAIM OBJECT 
+
+
+ apiVersion: v1
+ kind: PersistentVolume
+ metadata:
+   name: pv0003
+ spec:
+   storageClassName: ""
+   capacity:
+     storage: 5Gi
+   accessModes:
+     - ReadWriteOnce
+   persistentVolumeReclaimPolicy: Retain
+   claimRef:
+     namespace: default
+     name: myclaim
+   nfs:
+     path: /tmp
+     server: 172.17.0.2
+
+---
+
+ kind: PersistentVolumeClaim
+ apiVersion: v1
+ metadata:
+   name: myclaim
+ spec:
+   storageClassName: ""
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 5Gi
+
+
+
+
+
+Q14) Create a persistent volume with given specifications:
+  Volume Name - pv-rnd
+  storage - 100Mi
+  Access modes - ReadWriteMany
+  host path - /pv/host-data-rnd
+
+
+   
+   apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-rnd
+spec:
+  capacity:
+    storage: 100Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+      path: /pv/host-data-rnd
+      
+      
+      
+      
    
    
    
    
    
-   
-   
-   
-   
-   
+   Q19) Craete a PersistentVolume, PersistentVolumeClaim and Pod with below specifications
+
+  PV - name : mypvl , Size: 100Mi, AccessModes: ReadWritemany, Hostpath: /pv/log, Reclaim Policy: Retain
+  PVC - name:  pv-claim-l, Storage request: 50Mi, Access Modes: ReadWritemany 
+  Pod - name : my-nginx-pod, image Name: nginx, Volume: PersistentVolumeClaim: pv-claim-l, volume mount : /log
+  
+ 
+ 
+ 
+ apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mypvl
+spec:
+  capacity:
+    storage: 100Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /pv/log
+    
+    
+---
+
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv-claim-l
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 50Mi
+      
+      
+---
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-nginx-pod
+spec:
+  containers:
+    - name : mynginx
+      image: nginx
+      volumeMounts:
+      - mountPath: "/log"
+        name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: pv-claim-l
+        
+        
+        
+        
+        apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: standard
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+mountOptions:
+  - debug
+volumeBindingMode: Immediate
+
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-pv-pod
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: kube-01
+  volumes:
+    - name: task-pv-storage
+      persistentVolumeClaim:
+        claimName: task-pv-claim
+  containers:
+    - name: task-pv-container
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: task-pv-storage
+
+
+
+
+
+STORAGE CLASSES 
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: standard
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-standard
+volumeBindingMode: WaitForFirstConsumer
+allowedTopologies:
+- matchLabelExpressions:
+  - key: failure-domain.beta.kubernetes.io/zone
+    values:
+    - us-central-1a
+    - us-central-1b
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: slow
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: io1
+  iopsPerGB: "10"
+  fsType: ext4
+
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: slow
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-standard
+  fstype: ext4
+  replication-type: none
+
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: example-nfs
+provisioner: example.com/external-nfs
+parameters:
+  server: nfs-server.example.com
+  path: /share
+  readOnly: "false"
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gold
+provisioner: kubernetes.io/cinder
+parameters:
+  availability: nova
+
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+  diskformat: zeroedthick
+
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+  diskformat: zeroedthick
+  datastore: VSANDatastore
+
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: slow
+provisioner: kubernetes.io/azure-disk
+parameters:
+  skuName: Standard_LRS
+  location: eastus
+  storageAccount: azure_storage_account_name
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: slow
+provisioner: kubernetes.io/azure-disk
+parameters:
+  storageaccounttype: Standard_LRS
+  kind: managed
+
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile
+provisioner: kubernetes.io/azure-file
+parameters:
+  skuName: Standard_LRS
+  location: eastus
+  storageAccount: azure_storage_account_name
+
+
+
+
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-io-priority-high
+provisioner: kubernetes.io/portworx-volume
+parameters:
+  repl: "1"
+  snap_interval: "70"
+  priority_io: "high"
+
+
+
+DAEMON SETS 
+-----------
+
+
+
+
+
+apiVersion : apps/v1
+kind : DaemonSet
+metadata : 
+  name : fluent-ds
+
+spec :
+  template :
+    metadata :
+      labels :
+        name : fluentd
+    spec :
+      containers :
+        - name : fluentd
+          image : gcr.io/google-containers/fluentd-elasticsearch:1.20
+  selector :
+    matchLabels :
+      name : fluentd
+
+
+
+
+ 
+ 
