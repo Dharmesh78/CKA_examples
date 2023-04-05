@@ -1269,6 +1269,99 @@ spec :
 
 
 
+SECRETS
+-------
 
+COMMAND BASED CREATION 
+
+
+178  echo -n 'admin' | base64 > username.txt
+  179  echo -n 'password123' | base64 > password.txt
+  180  g get secrets
+  181  g create secret generic db-user-pass --from-file=./username.txt --from-file=./password.txt
+  182  g get secrets
+  183  g describe secrets db-user-pass
+  
+  
+  
+  
+apiVersion : v1
+kind : Secret
+metadata :
+  name : secret-ssh-authentication
+type : kubernetes.io/ssh-auth
+data :
+  ssh-privatekey : |
+                    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
+                    NhAAAAAwEAAQAAAYEAykPOPaEGHsGwLfu1xlMDXXMeNA4y7MmDfaxr8Ud8yyJF+l8f/eQJ
+                    PU7irfCElg54ogEhaGKEgUthyhpN9//79YQQlzD8MqAtxbed/Y7lLp12Z0Yp7u6WPeFPXW
+                    UZU9T40oNcfwUWEd9lE69tmYUqTllQ5fX0zPFZYrrpIypZUe23gVy52Ojg323Bv67rKIpb
+                    Ds5mxZTucNlYSjGrgjcBR+ZITgjMpVUUxVyaZjLeKftRKOLbNiosq/bxijNZ4Rw/DFVgVX
+                    P7dEJih/3KJhri0IkuYUflmFhnFHhvdWsZUfcu6Iwk7wmYzbR8FEiSxYWC1ui0OKkz51Ua
+                    NRgJPp5LBtOYqCVJqV5nEJzzYvB1Fg2hOsjez9zjci2lMAnxBbj6FSl/rMmk/UqvWXgJKv
+                    8t+IH9uZxFDdadU1OBget12cN7zI92T2tkdmuZJC63RxBwr9HEHfqi0nQvBQ+JkCEJoREB
+                    TM/Hma9QNFoTrs+gH2Xg1a4HlOnjvSeeJC4JUxwdAAAFiBLeZwYS3mcGAAAAB3NzaC1yc2
+                    EAAAGBAMpDzj2hBh7BsC37tcZTA11zHjQOMuzJg32sa/FHfMsiRfpfH/3kCT1O4q3whJYO
+                    eKIBIWhihIFLYcoaTff/+/WEEJcw/DKgLcW3nf2O5S6ddmdGKe7ulj3hT11lGVPU+NKDXH
+                    8FFhHfZROvbZmFKk5ZUOX19MzxWWK66SMqWVHtt4Fcudjo4N9twb+u6yiKWw7OZsWU7nDZ
+                    WEoxq4I3AUfmSE4IzKVVFMVcmmYy3in7USji2zYqLKv28YozWeEcPwxVYFVz+3RCYof9yi
+                    Ya4tCJLmFH5ZhYZxR4b3VrGVH3LuiMJO8JmM20fBRIksWFgtbotDipM+dVGjUYCT6eSwbT
+                    mKglSaleZxCc82LwdRYNoTrI3s/c43ItpTAJ8QW4+hUpf6zJpP1Kr1l4CSr/LfiB/bmcRQ
+                    3WnVNTgYHrddnDe8yPdk9rZHZrmSQut0cQcK/RxB36otJ0LwUPiZAhCaERAUzPx5mvUDRa
+                    E67PoB9l4NWuB5Tp470nniQuCVMcHQAAAAMBAAEAAAGAHGvkuiI7Uu0SjZOWGlUl3ubDMr
+                    tgCofSc0FcNZ4++ehJ/wGI5Es7xSKllZ17c/56kwEnqZxWVDi8eAK0PAn7ZKd3EVevyIlb
+                    hTHlAHEo4SD9N0vTrqBV+kIDvfLr2SzO/f25bJvRWxeSA28eLnlY1YOVa4rhKD8tuULcab
+                    WUsX9+zq2x67nlh1/L3tx8bMjsPKtiI5dm3fKchmhuWjDSfEDunhB8eSr4bTcy9vNk5m9L
+                    GzytYvIQLuXXUP0gPxKRxXosUvvmtitgRDHZYpyK07ckUrwHcTmjj0zIKco4axICN9QZiD
+                    DkPkA42qCVRkEzWPAntddxV9UVvApFUvjvH5RFICgIKZd3K5EwkTEyQZaqOYYGWuLpXNjQ
+                    7IbwhKxjd7xG7RsEBDcKiULiiYEqBV+J3syzKhH3ydGIhtqkTijeiLh/B92pXhDrTz7e4i
+                    PZRL/rEk3evOcPkjaqJVdJX56a9GQ+sleisLC1p428rRUnnF5AO19KB2gLbiscaJTdAAAA
+                    wQC/HO2uvKz4WpS1tsp+WKw8it5frhwn+eKX9xaQTEQBGvWb1NLT7+2A53ZLGR0AcmhzO7
+                    0PnoNQM1JdIQCZwQLeWmIEHfd572rDEb3wweIpW4q3l9tWws6mC1bdGp83r+5BWvHzsxzC
+                    Rr8VvyC8rij8+REw/qJpuhuatR5Qy6lIWYdRczx7Xpot5/cSqJrBlbl+KBQdAwe3NMVVcY
+                    A9LP9eTazMkQ5gXOU5qtPgvF8efYvQ2BqHDwCw9xconHHJSlwAAADBAOhD/611vqVzxHyv
+                    dRg6mYxMFfsO0xcOKaMIeGlzosl9dpk70HzD8FmNWcoqnKWNPZxQ7qFaKbH0IoTDdU6nHp
+                    mn7l76NjvbA9/7+4jmqBEdCL1e3QaU5jeVNRHocFhllzZLkZnYMNvn9JznQi1e9ycYgy3C
+                    1yUVSmfTcOJTpzFvNSloM3Tw3uzLZlIvIiFMFhQH9zzS9Q2DMg6Ja1ndEVVuHM0rVNJBod
+                    Z03TF0w0jval+UYHzg0xSVb/5UeesfXwAAAMEA3u7+8FHPOP8WJbYzWWFCyEGnO8OlFN8/
+                    gH6vgRm7t2p6Z/2I5RHbSz9tYOZk6HE06DX1ElenA7C08K9GidpfCLHGdkgPr3ZpeLqmjq
+                    Bf/35R0eNTINceZlFyKk+CMF9O2he0mmGJDnsWk2I4Qqimf8BJsbkvAbcDsvLIB5ycrj7Z
+                    +5vNDzi+MwY1wy0ybvDul90KyA3hV7KCx3tLVFT2hNjVkhhlJCgEJSWOxYmrapR3XTlaxM
+                    Nj0Dzs9BpCjQIDAAAAD2xhYnVzZXJAa21hc3RlcgECAw==
+  
+ 
+ 
+ 
+ CRON JOB
+ 
+ apiVersion : batch/v1
+kind : CronJob
+metadata :
+  name : cron-demo
+spec :
+  schedule : "*/1 * * * *"
+  jobTemplate :
+    spec :
+      template :
+        metadata :
+          labels :
+            name : cron-demo
+
+        spec :
+          containers :
+            - name : cron-demo
+              image : centos:7
+              args : 
+                - python
+                - -c
+                - from datetime import datetime; print('[{}] Cron job demo for CKA batch Oracle ...'.format(datetime.now()))
+          restartPolicy : Never
+          
+ 
+ 
+ 
+ 
+ 
+ 
  
  
