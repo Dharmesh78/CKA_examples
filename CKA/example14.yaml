@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2023-04-04T09:17:43Z"
+  labels:
+    run: finance-audit-pod
+  name: finance-audit-pod
+  namespace: finance
+  resourceVersion: "77673"
+  uid: 87710a7c-a896-4733-9370-b2885105bb6b
+spec:
+  containers:
+  - command:
+    - sleep
+    - "100"
+    image: busybox
+    imagePullPolicy: Always
+    name: finance-audit-pod
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-dqc6b
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: kworker2
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-dqc6b
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-04T09:17:43Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-04T09:17:43Z"
+    message: 'containers with unready status: [finance-audit-pod]'
+    reason: ContainersNotReady
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-04T09:17:43Z"
+    message: 'containers with unready status: [finance-audit-pod]'
+    reason: ContainersNotReady
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-04T09:17:43Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://96c3fd0513838b13d1c5442561c3fc735d7b738bd4cc53cebd4803ab33d3b903
+    image: docker.io/library/busybox:latest
+    imageID: docker.io/library/busybox@sha256:b5d6fe0712636ceb7430189de28819e195e8966372edfc2d9409d79402a0dc16
+    lastState:
+      terminated:
+        containerID: containerd://96c3fd0513838b13d1c5442561c3fc735d7b738bd4cc53cebd4803ab33d3b903
+        exitCode: 128
+        finishedAt: "2023-04-04T09:20:55Z"
+        message: 'failed to create containerd task: failed to create shim task: OCI
+          runtime create failed: runc create failed: unable to start container process:
+          exec: "seep": executable file not found in $PATH: unknown'
+        reason: StartError
+        startedAt: "1970-01-01T00:00:00Z"
+    name: finance-audit-pod
+    ready: false
+    restartCount: 5
+    started: false
+    state:
+      waiting:
+        message: back-off 2m40s restarting failed container=finance-audit-pod pod=finance-audit-pod_finance(87710a7c-a896-4733-9370-b2885105bb6b)
+        reason: CrashLoopBackOff
+  hostIP: 172.31.21.240
+  phase: Running
+  podIP: 10.244.2.34
+  podIPs:
+  - ip: 10.244.2.34
+  qosClass: BestEffort
+  startTime: "2023-04-04T09:17:43Z"
