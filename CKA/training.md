@@ -1,0 +1,641 @@
+CKA SYLLABUS 
+
+STORAGE - 10%
+WORKLOAD AND SCHEDULING - 15%
+CLUSTER ARCHITECTURE , CONFIGURATION - 25%
+SERVICES AND NETWORKING - 20%
+TROUBLESHOOTING - 30%
+
+
+
+43  git clone https://github.com/vishymails/YAML.git
+   44  kubectl get pods
+   45  kubectl get po
+   46  ls
+   47  kubectl create -f example1.yml
+   48  kubectl get pods
+   49  kubectl get pods -o wide
+   50  kubectl get pods -o yaml
+   51  kubectl describe pod tomcat-pod
+   52  kubectl get pods -o wide
+   53  ping 10.244.1.2
+   54  kubectl exec -it tomcat-pod -- /bin/sh
+
+
+QUESTION 1. create a new pod called admin-pod with image busybox. Allow it to be able to set system_time. Container should sleep for 3200 seconds
+
+
+
+40  cd CKA
+   41  ls
+   42  kubectl get nodes
+   43  git clone https://github.com/vishymails/YAML.git
+   44  kubectl get pods
+   45  kubectl get po
+   46  ls
+   47  kubectl create -f example1.yml
+   48  kubectl get pods
+   49  kubectl get pods -o wide
+   50  kubectl get pods -o yaml
+   51  kubectl describe pod tomcat-pod
+   52  kubectl get pods -o wide
+   53  ping 10.244.1.2
+   54  kubectl exec -it tomcat-pod -- /bin/sh
+   55  history
+   56  kubectl delete pod tomcat-pod
+   57  kubectl get pods -o wide
+   58  clear
+   59  alaias g=kubectl
+   60  alias g=kubectl
+   61  g get nodes
+   62  g get pods
+   66  g run admin-pod --image=busybox --dry-run=client -o yaml --command sleep 3200
+   67  g get pods
+   68  g run admin-pod --image=busybox --dry-run=client -o yaml --command sleep 3200
+   69  g get pods
+   70  g run admin-pod --image=busybox --dry-run=client -o yaml --command sleep 3200
+   71  g get pods
+   72  g run admin-pod --image=busybox --dry-run=client -o yaml --command sleep 3200 | tee example2.yaml
+   73  g run admin-pod --image=busybox --dry-run=client -o yaml --command sleep 3200 | tee example3.yaml
+   74  echo 'securityContext :
+      capabilities :
+        add : ["NET_ADMIN", "SYS_TIME"]
+'
+   75  echo 'securityContext :
+      capabilities :
+        add : ["NET_ADMIN", "SYS_TIME"]
+' | tee -a example3.yaml
+   76  g get pos
+   77  g get po
+   78  g delete -f example2.yaml
+   79  g delete pod admin-pods
+   80  g create -f example3.yaml
+   
+   
+   
+   
+   REPLICATION CONTROLLER 
+   
+   
+   82  g get pods
+   83  g delete -f example3.yaml
+   84  g create -f example4.yml
+   85  g get po
+   86  g get po -o wide
+   87  g get po -l app=tomcat-app
+   88  g describe rc tomcat-rc 
+   89  g scale rc tomcat-rc --replicas=9
+   90  g get po -l app=tomcat-app
+   91  g get po -o wide
+   92  g scale rc tomcat-rc --replicas=3
+   93  g get po -o wide
+   94  g delete rc tomcat-rc
+   95  g delete -f example4.yml
+   96  history
+   
+   
+   REPLICA SETS 
+   
+   g create -f example5.yml
+   98  g get pods
+   99  g get pods -l tier=frontend
+  100  g get pods -l tier=backendend
+  101  g get pods -l tier=backend
+  102  g get rs tomcat-rd -o wide
+  103  g get rs tomcat-rs -o wide
+  104  g describe rs tomcat-rs
+  105  g get po -o wide
+  106  g scale rs tomcat-rs --replicas=9
+  107  g get po -o wide
+  108  g scale rs tomcat-rs --replicas=3
+  109  g get po -o wide
+  110  g delete rs tomcat-rs
+  111  g delete -f example5.yml
+  
+  
+  
+  
+  QUESTION 2 : deploy a web-load-5461 pod using nginx:1.17 with the label set to tier=web
+  
+  
+  
+   1  g run web-load-5461 --image=nginx:1.17 --labels tier=web -o yaml | tee example6.yaml
+    2  g get po
+    3  g get pods --show-labels 
+    4  history
+  
+   
+   
+   DEPLOYMENT 
+   
+   
+    1  g create -f examle7.yml
+    2  g create -f example7.yml
+    3  g get deploy 
+    4  g get deploy -l app=tomcat-app
+    5  g get rs -l app=tomcat-app
+    6  g get po 
+    7  g get po -o wide
+    8  g describe deploy tomcat-deploy
+    9  g deploy 
+   10  g get deploy 
+   11  g scale deployment tomcat-deploy --replicas=9
+   12  g get po
+   13  g scale deployment tomcat-deploy --replicas=1
+   14  g get po
+   15  history 
+   
+   
+   ROLLOUTS
+   
+    16  g get deploy -o wide 
+   17  g set image deploy tomcat-deploy tomcat-containers=nginx:1.9.1
+   18  g rollout status deployment/tomcat-deploy
+   19  g get deploy -o wide 
+   20  g scale deployment tomcat-deploy --replicas=9
+   21  g get deploy -o wide 
+   22  g set image deploy tomcat-deploy tomcat-containers=vishymails/tomcatimage:1.0
+   23  g rollout status deployment/tomcat-deploy
+   24  g get deploy -o wide 
+   
+   
+   
+   ROLLBACK 
+   
+   IN OLDER VERSION TO START IMAGE RECORDING YOU HAVE TO ADD BELOW ANNOTATION BUT IN LATEST VERSIONS THIS ANNOTATION IS NOT NECESSARY 
+   
+   g set image deploy tomcat-deploy tomcat-containers=nginx:1.91 --record
+   
+   26  g set image deploy tomcat-deploy tomcat-containers=nginx:1.91
+   27  g get deploy -o wide 
+   28  g rollout status deployment/tomcat-deploy
+   29  g get deploy -o wide 
+   
+   INANOTHER TERMINAL 
+   
+  43  alias g=kubectl
+   44  g rollout history deployment/tomcat-deploy
+   45  g rollout undo  deployment/tomcat-deploy
+   46  g rollout status deployment/tomcat-deploy
+   
+   
+   
+   Question 03 ) Create a new deployment called web-proj-268 with image nginx:1.16 and one replica. Next, upgrade the deployment to version 1.17 using rolling update. 
+Make sure that the version upgrade is recorded in the resource annotation.
+   
+   51  g create deployment web-proj-268 --image=nginx:1.16
+   or
+   51  g create deployment web-proj-268 --image=nginx:1.16 -o yaml | tee example8.yaml
+   
+   52  g describe deployment web-proj-268
+   53  g set image deployment web-proj-268 nginx=nginx:1.17 --record
+   54  g rollout history deployment web-proj-268
+   55  g get deploy -o wide 
+   
+    57  g get deploy
+   58  g delete deploy tomcat-deploy
+   59  g delete deploy web-proj-268
+   60  g create deployment web-proj-268 --image=nginx:1.16 -o yaml | tee example8.yaml
+   
+   
+   
+   
+   Question 04 ) Create a new deployment web-003, scale this deployment to 3 replicas, make sure desired number of pods are always running.
+
+   alias g=kubectl
+  105  g create deployment web-003 --image=nginx --replicas=3 -o yaml | tee example9.yaml
+  106  g get pods 
+  112  g get po -l app=web-003
+  113  g delete pod web-003-75d568fccc-bjzq6
+  114  g get po -l app=web-003
+   
+   
+   
+   
+   CHECKING MASTER NODE DESCRIPTION AND LOGS 
+   
+   
+  107  g get pods -A
+  108  g logs pod kube-controller-manager-kmaster -n kube-system
+  109  g describe  pod kube-controller-manager-kmaster -n kube-system
+  110  sudo find / -name kube-controller-man* | grep bin
+  111  g logs kube-controller-manager-kmaster -n kube-system
+  
+  
+  98  ls /etc
+   99  ls /etc/kubernetes
+  100  ls /etc/kubernetes/manifests
+  101  clear
+  102  sudo vi /etc/kubernetes/manifests/kube-controller-manager.yaml 
+  
+  
+  Qusetion 6) deploy a web-load-5461 pod using nginx:1.17 with the label set to tier=web
+
+
+108  g delete pod web-load-5461
+  109  g run web-load-5461 --image=nginx:1.17 --labels tier=web
+  110  g get pods --show-labels
+  
+  
+  
+  
+  
+  
+  Create static Pods
+
+Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Unlike Pods that are managed by the control plane (for example, a Deployment); instead, the kubelet watches each static Pod (and restarts it if it fails).
+
+Static Pods are always bound to one Kubelet on a specific node.
+
+The kubelet automatically tries to create a mirror Pod on the Kubernetes API server for each static Pod. This means that the Pods running on a node are visible on the API server, but cannot be controlled from there. The Pod names will be suffixed with the node hostname with a leading hyphen.
+Note: If you are running clustered Kubernetes and are using static Pods to run a Pod on every node, you should probably be using a DaemonSet instead.
+Note: The spec of a static Pod cannot refer to other API objects (e.g., ServiceAccount, ConfigMap, Secret, etc).
+Note: Static pods do not support ephemeral containers.
+
+
+
+
+  
+  Q 7) Create static pod on node07 / kworker1  called static-nginx with image nginx and you have to make sure that it is recreated/restarted automatically in case of any failure happens.
+
+  STEP 1 - IN MASTER NODE 
+  
+   1  clear
+    2  g get nodes
+    3  ps -ef  | grep kubelet
+    4  sudo grep static /var/lib/kubelet/config.yaml
+    5  g run static-nginx --image=nginx --dry-run=client -o yaml
+    6  g run static-nginx --image=nginx --dry-run=client -o yaml > example10.yml
+    7  cat example10.yml | ssh kworker1 "tee static-pod.yaml"
+    8  g get pods
+    9  g get pods -o wide 
+   10  history
+   
+   
+   STEP 2  - In KWORKER 1 NODE 
+   
+    39  ps -ef | grep kubelet
+   40  sudo grep static /var/lib/kubelet/config.yaml
+   41  sudo cp static-pod.yaml /etc/kubernetes/manifests/.
+   42  ls  /etc/kubernetes/manifests/
+   43  sudo vi /etc/kubernetes/manifests/static-pod.yaml 
+  
+  NO NEED TO USE ANY START COMMANDS YAML FILES WILL BE EXECUTED AND VISIBLE IN MASTER NODE IF U PLACE DEFINED YML FILE IN MANIFESTS FOLDER 
+  
+  STEP 3 - IN MASTER NODE 
+  
+  8  g get pods
+    9  g get pods -o wide 
+   10  history
+  
+  
+  
+  MULTICONTAINER POD 
+  
+  
+  
+  
+  
+  
+  
+  17  kubectl get pods
+   18  clear
+   19  g create -f example11.yml
+   20  g get po -o wide
+   21  g exec -it multicontainer-pod -- /bin/sh
+   22  g exec -it multicontainer-pod --container mytomcat -- /bin/sh
+  
+  
+   
+   
+   Q 8) Create a pod called pod-multi with 2 containers as it is descripted below:
+   Container 1 : name:container1, image: nginx 
+   Container 2 : name:container2, image: busybox, command: sleep 4800
+   
+   
+   apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-multi
+  name: pod-multi
+spec:
+  containers:
+  - image: nginx
+    name: container1
+  - image: busybox
+    name:  container2
+    command: ["sleep","4800"]
+   
+   
+   
+   
+   g create -f multipod.yaml
+		g get pods -o wide
+		g describe pod pod-multi
+
+
+
+
+SERVICES 
+
+1. NODE PORT
+2. LOADBALANCER 
+3. CLUSTER IP
+
+
+
+NODEPORT 
+
+
+
+
+apiVersion : apps/v1
+kind : Deployment
+metadata :
+  name : tomcat-deploy
+  labels :
+    app : tomcat-app
+
+spec :
+  replicas : 3 
+  selector :
+    matchLabels : 
+      app : tomcat-app
+  template :
+    metadata :
+      labels :
+        app : tomcat-app
+    spec :
+      containers :
+        - name : tomcat-containers 
+          image : vishymails/tomcatimage:1.0
+          ports : 
+            - containerPort : 8080
+
+            -------------------------
+            
+            
+     apiVersion : v1
+kind : Service
+metadata : 
+  name : my-service
+  labels : 
+    app : tomcat-app
+spec :
+  selector :
+    app : tomcat-app
+  type : NodePort
+  ports : 
+    - nodePort : 31000
+      port : 80
+      targetPort : 8080
+         
+            
+
+
+
+1  g get po
+    2  g delete -f example11.yml
+    3  g apply -f example12-1.yml
+    4  g get po
+    5  g apply -f example12-2.yml
+    6  kubectl get service -l app=tomcatapp
+    7  kubectl get service -l app=tomcat-app
+    8  kubectl get service -l app=tomcat-app -o wide 
+    9  g get po -o wide 
+   10  g describe svc my-service
+   11  curl
+   12  curl http://10.244.1.44:8080
+   13  curl http://10.244.1.35:8080
+   14  g describe svc my-service
+   15  curl http://10.244.2.35:8080
+   16  curl http://10.244.2.36:8080
+   17  g get odes
+   18  g get nodes -o wide 
+   19  curl http://172.31.26.246:31000
+   20  history
+
+
+
+
+LOADBALANCER SERVICE 
+
+
+
+
+apiVersion : v1
+kind : Service
+metadata : 
+  name : my-service
+  labels : 
+    app : tomcat-app
+spec :
+  selector :
+    app : tomcat-app
+  type : LoadBalancer
+  ports : 
+    - nodePort : 31000
+      port : 8080
+      targetPort : 8080
+  
+  
+  
+  
+  
+
+
+
+23  g delete svc my-service
+   24  g apply -f example12-3.yml
+   25  g describe service my-service
+   26  curl http://10.110.137.197:8080
+   27  g get svc -o wide 
+
+
+
+Q15) Expose "audit-web-app" pod to by creating a service "audit-web-app-service" on port 30002 on nodes of given cluster.
+  Note : Now given web application listens on port 8080
+   
+   
+   
+   
+   36  g run audit-web-app --image=vishymails/tomcatimage:1.0 --port=8080
+   37  g get po
+   38  g describe pod audit-web-app
+   39  g expose pod audit-web-app --name=audit-web-app-svc --type=NodePort --dry-run=client -o yaml > example13.yaml
+   40  g apply -f example13.yaml
+   41  g get pods -o wide | grep audit
+   42  g describe svc audit-web-app-svc
+   
+   
+   
+   
+   
+   
+   NAMESPACES 
+   
+   
+   
+   
+   Q 9) Create a pod called delta-pod in defence namespace belonging to the development environment (env=dev)  and frontend tier (tier=front), image: nginx:1.17
+ 
+   
+   g create ns defense 
+    2  g run delta-pod --image=nginx:1.17 --labels env=dev,tier=front -n defense
+    3  g get pods 
+    4  g get pods -n defense 
+    5  g describe pods delta-pod -n defense 
+    6  g get pods 
+    7  g describe pods audit-web-app
+    8  history
+    9  g get namespace
+   12  g get all
+   13  g get all -n defense 
+   14  g get all --namespace  defense 
+   16  g api-resources 
+   17  g api-resources --namespaced=true
+   18  g api-resources --namespaced=false
+   
+   
+   
+   
+   
+   
+   
+Q10) Get web-load-5461 pod details in json format and store it in a file at /opt/output/web-load-5461-j070822n.json
+ 
+ 
+ 
+ 21  g get po
+   22  g apply -f example6.yaml
+   23  g get po
+   25  ls /opt/output
+   26  sudo ls /opt/output
+   27  g get pods web-load-5461 -o json | sudo tee /opt/output/web-load-5461-j070822n.json 
+   28  sudo ls /opt/output
+   29  sudo mkdir /opt/output
+   30  g get pods web-load-5461 -o json | sudo tee /opt/output/web-load-5461-j070822n.json 
+   31  sudo ls /opt/output
+   32  sudo cat /opt/output/web-load-5461-j070822n.json 
+   
+   
+   
+   
+   
+ 
+ Q12) A new application finance-audit-pod is deployed in finance namespace. Find out what is wrong with it and fix the issue. 
+ NOTE: No configuration changes allowed, you can only delete or recreate the pod.
+ 
+ 
+ 35  g create ns finance ; g run finance-audit-pod --image=busybox -n finance --command speep 180
+   36  g get po
+   37  g get po -n finance
+   38  g describe pod finance-audit-pod -n finance
+   39  g describe pod finance-audit-pod -n finance | grep -i command -A5
+   40  g get pods finance-audit-pod -n finance -o yaml | tee example14.yaml
+   41  grep sleep example14.yaml
+   42  g delete pods finance-audit-pod -n finance --grace-period=0 --force
+   43  g create -f example14.yaml
+   44  g get pods -n finance
+   
+   
+   
+   
+   
+   
+   
+   Q 13 :use JSONPath query to retrieve our OS images of all K8s nodes and store it in a file ~/allNodeOSImages8.txt
+
+ 
+  g get nodes -o jsonpath='{.items[*].status.nodeInfo.osImage}' | tee allNodeOSImages8.txt
+ 
+   
+   
+   PERSISTENCE VOLUMES 
+   
+   1. PV - PERSISTENT VOLUME
+   2. PVC - PERSISTENT VOLUME CLAIMS 
+   
+   
+   PV - PLACE OF STORAGE IN CLUSTER 
+   PVC - REQUEST FOR STORAGE 
+   
+   
+   LIFE CYCLE OF PERSISTENT VOLUMES 
+   
+   1. PROVISIONING
+   2. BINDING 
+   3. USING 
+   4. RECALIMING 
+   
+   
+   PROVISIONING - 2 TYPES 
+   
+   1. STATIC 
+   2. DYNAMIC 
+   
+   STATIC - PV NEED TO BE CREATED BEFORE PVC 
+   DYNAMIC - PV IS CREATED AT SAME TIME OF PVC 
+   
+   
+   
+   CACHED VOLUME - EMPTY DIR VOLUME 
+   
+   TEMPORARY SPACE 
+   
+   
+   
+   
+   
+   
+   emptydir demo
+   
+   
+   
+   1  g apply -f example15.yml
+    2  kubectl get po
+    3  kubectl exec -it tomcat-pod -- /bin/bash
+    4  g describe pod tomcat-pod
+    5  kubectl exec -it tomcat-pod -- /bin/bash
+    6  g delete pod tomcat-pod
+    7  g apply -f example15.yml
+    8  kubectl exec -it tomcat-pod -- /bin/bash
+    9  history
+   
+   
+   HOSTPATH 
+   
+   MOUNTS A FILE OR FOLDER FROM THE HOST NODES FILE SYSTEM IN TO THE POD 
+   
+   
+   19  g get po
+   20  g apply -f example16.yml
+   21  g get po -o wide 
+   22  kubectl exec -it tomcat-hostpath -- /bin/bash
+   23  g describe pod tomcat-hostpath 
+   24  g get po
+   25  g delete pod tomcat-hostpath
+   26  g apply -f example16.yml
+   27  kubectl exec -it tomcat-hostpath -- /bin/bash
+   
+   
+
+   MULTI CONTAINER POD SHARING COMMON VOLUME 
+   
+   29  g create -f example18.yml
+   30  g get po
+   31  g exec -it multicontainer-pod1 --container producer -- /bin/bash
+   32  g exec -it multicontainer-pod1 --container consumer -- /bin/bash
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
