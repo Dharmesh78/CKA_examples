@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: prod-nginx
+  name: prod-nginx
+spec:
+  containers:
+  - image: nginx
+    name: prod-nginx
+  tolerations:
+    - key: "env_type" # you will have to define/apply this taint for the workerNode of chioce and only in that worker node this pod will be created , as tolerations defined here matches.
+      operator: "Equal"
+      value: "production"
+      effect: "NoSchedule"

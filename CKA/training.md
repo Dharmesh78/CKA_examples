@@ -1356,7 +1356,29 @@ spec :
                 - -c
                 - from datetime import datetime; print('[{}] Cron job demo for CKA batch Oracle ...'.format(datetime.now()))
           restartPolicy : Never
-          
+ 
+ 
+ 
+ 
+ LIFE CYCLE HOOKS
+ 
+ 
+ 
+ apiVersion : v1
+kind : Pod
+metadata :
+  name : lifecycle-hook-pod
+spec :
+  containers :
+    - name : lifecycle-container
+      image : nginx
+      lifecycle :
+        postStart :
+          exec :
+            command : ["/bin/sh","-c", "echo Welcome Oracle > /usr/share/post-start-msg"]
+        preStop :
+          exec :
+            command : ["/usr/sbin/nginx","-s","quit"]
  
  
  
@@ -1364,4 +1386,128 @@ spec :
  
  
  
+ Question 05 ) Upgrade given cluster (master and worker node) from 1.23.8-00 to 1.24.2-00. Make sure to first drain respective node prior to update 
+and make it available post update.
+
+
+
+Kmaster 
+
+
+  alias g=kubectl
+   g get nodes
+   sudo apt update 
+   g drain kmaster --ignore-daemonsets
+   apt-cache madison kubeadm |head
+   sudo apt install kubeadm=1.26.3-00
+   sudo kubeadm upgrade apply v1.26.3-00
+   sudo kubeadm upgrade apply v1.26.3
+   sudo apt install kubelet=1.26.3
+     sudo apt install kubelet=1.26.3-00
+   sudo systemctl restart kubelet
+   g uncordon kmaster 
+   g get nodes 
+   g drain kworker1 --ignore-daemonsets
+   g drain kworker1 --ignore-daemonsets --force
+   g get nodes
+  
+  
+  
+  
+  kworker 1
+  
+  
+     sudo apt update 
+     sudo apt install kubeadm=1.26.3-00
+     sudo kubeadm upgrade node
+     sudo apt install kubelet=1.26.3-00
+     sudo systemctl restart kubelet 
+  
+  
+  
+  kmaster 
+  
+  
+  265  g uncordon kworker1
+  266  g get nodes
+
+
+
+
+
+Q11) Backup ETCD database and save it under /root with name of backup "etcd-backup.db"
+
+
+sudo snap install etcd
+g get pods -A |grep etcd
+g describe  pods etcd-node6  -n kube-system |grep Command -A 20
+
+ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key \
+  snapshot save /root/etcd-backup070822
+  
+  Utkarsh:
+  sudo apt  install etcd-client
+  sudo -i
+  ETCDCTL_API=3 etcdctl snapshot save /root/etcd-backup070822 --endpoints=https://127.0.0.1:2379  --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key
+
+
+ 
+ 
+ 
+ Q16) Create a pod called pod-jxc, using details mentioned below:
+  SecurityContect
+  runasUser: 1000
+  fsGroup: 2000
+  
+  Image=redis:alpine
+  
+  
+  
+  
+ 250  alias g=kubectl
+  251  g run pod-jxc --image=redis:alpine --dry-run=client -o yaml > example43.yml
+  252  g apply -f example43.yml
+  253  g get pods
+  254  g exec -it pod-jxc -- whoami
+  255  g exec -it lifecycle-hook-pod -- whoami
+  256  history
+ 
+ 
+ 
+ 
+ 
+ 
+ It is critical to understand that taints and tolerations are only enforced at the node level, and pods have the freedom to choose nodes without taints, 
+ but if all of our nodes are tainted then new pods must be with exact tolerations defined in them.
+
+Q17) Apply taint a worked node node7 with details provided below:
+ Create a pod called dev-pod-nginx using image=nginx, 
+ make sure workloads are not scheduled to this worker node (node7)
+ Create another pod prod-pod-nginx using image=nginx with a toleration to be scheduled on node7. 
+ 
+ Details :key:env_type, value:production, operator: Equal & effect: NoSchedule   
+ 
+ 
+ 252  cd CKA
+  253  clear
+  254  alias g=kubectl
+  255  g describe node kmaster
+  256  g describe node kmaster | grep -i taint
+  257  g taint node kmaster node-role.kubernetes.io/control-plane:NoSchedule-
+  258  g taint node kmaster node-role.kubernetes.io/control-plane:NoSchedule
+  259  g describe node kworker1 | grep -i taint 
+  260  g describe node kworker2 | grep -i taint 
+  261  g taint node kworker1 env_type=production:NoSchedule
+  262  g run dev-nginx --image=nginx
+  263  g get po
+  264  g get po -o wide
+  265  g run prod-nginx --image=nginx --dry-run=client -o yaml > example44.yml
+  266  g apply -f example44.yml
+  267  g get po
+  268  g get po -o wide
+
+ 
+ Q18) Create a user “nec-adm". Grant nec-adm access to cluster, should have permissions to create, list, get, update, and delete pods in nec namespace 
+ Private key exist in location:  /vagrant/nec-adm.key and csr at /vagrant/nec-adm.csr
  
