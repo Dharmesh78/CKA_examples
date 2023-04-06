@@ -1511,3 +1511,53 @@ Q17) Apply taint a worked node node7 with details provided below:
  Q18) Create a user “nec-adm". Grant nec-adm access to cluster, should have permissions to create, list, get, update, and delete pods in nec namespace 
  Private key exist in location:  /vagrant/nec-adm.key and csr at /vagrant/nec-adm.csr
  
+ 
+ step 1 
+ 
+ 
+ 
+ 1  g create ns nec
+    2  cd CKA
+    3  openssl genrsa -out nec-adm.key 2048
+    4  openssl req -new -key nec-adm.key -out nec-adm.csr
+    5  ls nec*
+    6  cat nec-adm.csr | base64 | tr -d "\n"
+    
+    
+step 2 - CREATE CERTIFICATE SIGNING REQUEST OBJECT 
+
+
+
+
+
+8  g apply -f example45.yml
+    9  g get csr
+   10  g get csr nec-adm
+   11  g certificate approve nec-adm
+   12  g get csr nec-adm
+   
+   
+step 3 - CREATE ROLE AND ROLEBINGS 
+
+
+
+ 14  g apply -f example46.yml
+   15  g apply -f example47.yml
+   16  g get rolebindin.rbac.authorization.k8s.io -n nec 
+   17  g get rolebinding.rbac.authorization.k8s.io -n nec 
+   18  g get pods -n nec --as nec-adm
+   20  g auth can-i get pods -n nec --as nec-adm
+   21  g auth can-i list  pods -n nec --as nec-adm
+   22  g auth can-i create  pods -n nec --as nec-adm
+
+   19  history
+
+
+
+
+Q20) Worker node node7 is not responding, have a look and fix the issue
+
+
+
+
+ 
