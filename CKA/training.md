@@ -1,6 +1,5 @@
 
 
-
 CKA SYLLABUS 
 
 STORAGE - 10%
@@ -8,6 +7,85 @@ WORKLOAD AND SCHEDULING - 15%
 CLUSTER ARCHITECTURE , CONFIGURATION - 25%
 SERVICES AND NETWORKING - 20%
 TROUBLESHOOTING - 30%
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kubernetes Installation 
+
+12GB RAM Required 16 GB Recommended
+4GB - base OS VMware - 512MB UBUNTU- 4GB WORKER NODE - 4 GB
+HDD - 40GB Free Space
+Minimum 4 cores required
+WE USE ONE MASTER AND 2 WORKERS ARCHITECTURE
+
+Step 1
+Create 3 images of ubuntu run on different ipaddress and network to be bridge
+System names
+Ubuntu-Master - 192.168.1.101 Ubuntu-Worker1 - 192.168.1.102 Ubuntu-Worker2 - 192.168.1.103
+Sudo hostnamectl set-hostname Ubuntu-Master - in first system
+Sudo hostnamectl set-hostname Ubuntu-Worker1 - in second system
+Sudo hostnamectl set-hostname Ubuntu-Worker2 - in
+ 
+Third system
+ Step 2
+
+
+IN ALL MACHINES
+sudo apt-get update
+Sudo apt-get install docker.io
+docker version
+Enable the docker service Sudo su
+Systemctl enable docker Systemctl start docker Systemctl status docker
+
+
+Step 3
+IN ALL MACHINES
+
+Curl -s https://packages.cloud.google.com/apt/doc/apt- key.gpg | sudo apt-key add
+
+
+Step 4
+IN ALL MACHINES
+Add Kubernetes repo
+Sudo apt-add-repository deb http://apt.kubernetes.io/
+kebernetes-cenial main
+Sudo apt-get install kubeadm kubelet kubectl
+Sudo apt-mark hold kubeadm kubelet kubectl
+Wait for 10 mins
+Kubeadm version
+Sudoswapoff-a (INALLMACHINES) Step 5
+ 
+
+
+IN Ubuntu-Master Machine
+Sudo kubeadm init pod-network-cidr=10.244.0.0/16
+It will display kubeadm join (KEEP BACKUP OF THE STATEMENT)
+Mkdir -p $HOME/.kube
+Sudo cp -I /etc/kubernetes/admin.conf $HOME/.kube/ config
+Sudo chown $(id -u):$(id -g) $HOME/.kube/config Sudo kubectl apply https://raw.githubusercontent.com/
+coreos/flannel/master/Documentation/kube-flannel.yml
+Kubectl get pods all-namespaces
+
+
+Step 6
+IN ALL WORKER MACHINES
+Copy back up kubeadm join command fully with given parameter
+
+Run in all worker machines
+COME BACK TO MASTER MACHINE Kubectl get nodes
+
+
+
 
 
 
@@ -1508,7 +1586,7 @@ Q17) Apply taint a worked node node7 with details provided below:
   268  g get po -o wide
 
  
- Q18) Create a user “nec-adm". Grant nec-adm access to cluster, should have permissions to create, list, get, update, and delete pods in nec namespace 
+ Q18) Create a user nec-adm". Grant nec-adm access to cluster, should have permissions to create, list, get, update, and delete pods in nec namespace 
  Private key exist in location:  /vagrant/nec-adm.key and csr at /vagrant/nec-adm.csr
  
  
@@ -1587,12 +1665,12 @@ kworker 1
 
 
 Q26
- A pod “my-da
+ A pod my-da
  
  
  
  
- ta-pod” in data namespace is not running. Fix the issue and get it in running state.
+ ta-pod in data namespace is not running. Fix the issue and get it in running state.
   
    Note: All supported definition files are placed at root.
   
@@ -1677,7 +1755,7 @@ spec:
    ----------------
    
    
-   13  kubectl get nodes -o wide | grep -v "INTERNAL-IP" | awk '{print " " $6}' | tr -d “\n”
+   13  kubectl get nodes -o wide | grep -v "INTERNAL-IP" | awk '{print " " $6}' | tr -d \n
    14  sudo cat /root/internalIPList
  
   
@@ -1774,4 +1852,145 @@ spec:
 
 
 
+Question 33  : Create a network policy for incoming web connection requests
 
+
+ g run web-test --image nginx 
+    2  g expose pod web-test --name web-test-svc --type NodePort --port 80
+    3  g run connect-pod --image busybox --command sleep 4800
+    4  g exec -it connect-pod -- wget
+    5  g apply -f example49.yml
+    6  g describe netpol 
+    7  g get pods
+    8  g get pods -o wide
+    9  g get svc
+   10  g exec -it connect-pod -- wget web-test-svc
+   11  history
+   
+   
+   
+   
+   
+   
+
+ Q37... mount secret in 2 pods using filesystem and environment variable
+
+
+echo 'apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-sec-file
+spec:
+  containers:
+  - image: redis
+    name: redis
+    volumeMounts:
+    - name: sec1
+      mountPath: "/secrets"
+  volumes:
+  - name: sec1
+    secret:
+     secretName: sec1' |tee  pod-sec-file.yaml
+
+
+
+##
+echo 'apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: pod-sec-env
+spec:
+  containers:
+  - image: redis
+    name: redis
+    env:
+    - name: CONFIDENTIAL
+      valueFrom:
+        secretKeyRef:
+          name: sec1
+          key: password' |tee  pod-sec-env.yaml
+          
+          
+          
+          
+          
+CONFIG MAP 
+
+
+management.endpoints.enabled-by-default=true
+management.endpoint.info.enabled=true
+management.security.enabled=false
+management.endpoints.web.exposure.include=*
+
+
+
+
+
+server.port= 9000
+server.servlet.context-path=/oracle
+oracleprops.greeting= Thank you and visit again - altered 
+oracleprops.greeting1= New Data
+    
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : myconfigpod1
+  labels : 
+    name : myconfigpod1
+spec :
+  containers :
+    - name : myconfigpod1
+      image : redis
+      volumeMounts :
+        - name : foo
+          mountPath : "/etc/config"
+          readOnly : true
+
+  volumes :
+    - name : foo
+      configMap :
+        name : config-map2
+        
+        
+        
+        
+        16  g apply -f example52.yml
+   17  g get po
+   18  g exec -it myconfigpod1 -- /bin/bash
+   
+   
+   
+   HPA
+   
+   
+   
+apiVersion : autoscaling/v2
+kind : HorizontalPodAutoscaler
+metadata :
+  name : hpa-resource-metrics-memory
+  namespace : default
+
+spec :
+  scaleTargetRef :
+    apiVersion : v1
+    kind : Deployment
+    name : tomcat-deploy
+  minReplicas : 3
+  maxReplicas : 10
+  metrics :
+    - type : Resource
+      resource :
+        name : memory
+        target : 
+          type : AverageValue
+          averageValue : 500Mi
+          
+
+
+
+
+
+
+ 
