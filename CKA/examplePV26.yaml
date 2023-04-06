@@ -1,0 +1,60 @@
+# # cat pv1.yaml ####
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv1
+spec:
+  capacity:
+    storage: 100Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+      path: /data
+ 
+ 
+---
+
+ #############
+# cat pv1claim.yaml
+
+
+
+
+#######
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv1claim
+  namespace: data
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 50Mi
+ 
+ 
+ 
+---
+ 
+ ######### cat pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-data-pod
+  namespace: data
+spec:
+  containers:
+    - name: mydata
+      image: nginx
+      volumeMounts:
+      - mountPath: "/maindata"
+        name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: pv1claim
+  #########

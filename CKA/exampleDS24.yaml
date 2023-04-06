@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: prod-pod
+  name: prod-pod
+spec:
+  selector:
+    matchLabels:
+      app: prod-pod
+    template:
+      metadata:
+        labels:
+          app: prod-pod
+      spec:
+        containers:
+          - image: nginx
+            name: nginx

@@ -1557,7 +1557,221 @@ step 3 - CREATE ROLE AND ROLEBINGS
 
 Q20) Worker node node7 is not responding, have a look and fix the issue
 
+node7 - kworker1
+node6 - kmaster 
+
+ 1  g get nodes 
+    2  g describe node kworker1
+    3  ps -ef | grep kubelet | grep lib
+    4  sudo cat /var/lib/kubelet/config.yaml | ssh kworker1
+    5  sudo cat /var/lib/kubelet/config.yaml | ssh kworker1 > mconfig.yaml
+    6  sudo cat /var/lib/kubelet/config.yaml | ssh kworker1 "tee mconfig.yaml"
+    7  g get nodes
+
+
+kworker 1
+
+ sudo systemctl status kubelet 
+   57  sudo systemctl restart kubelet 
+   58  sudo journalctl -u kubelet 
+   59  ps -ef | grep kubelet
+   60  ls
+   61  sudo diff mconfig.yaml /var/lib/kubelet/config.yaml
+   62  sudo systemctl start kubelet 
+ 1  
 
 
 
+
+
+
+
+Q26
+ A pod “my-da
  
+ 
+ 
+ 
+ ta-pod” in data namespace is not running. Fix the issue and get it in running state.
+  
+   Note: All supported definition files are placed at root.
+  
+   To create question scenario just change pv1claim.yaml and remove namespace information (ensure data namespace was created already) and apply them.
+
+   
+  
+   cat pv1.yaml
+   ####
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv1
+spec:
+  capacity:
+    storage: 100Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+      path: /data
+ 
+ 
+ 
+ #############
+cat pv1claim.yaml
+
+
+
+
+#######
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv1claim
+  namespace: data
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 50Mi
+ 
+ 
+ 
+ 
+ 
+ #########
+ cat pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-data-pod
+  namespace: data
+spec:
+  containers:
+    - name: mydata
+      image: nginx
+      volumeMounts:
+      - mountPath: "/maindata"
+        name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: pv1claim
+  #########
+
+
+
+
+ 21) List internal IPs of all nodes of given cluster, save result to a file /root/InternalIPList
+ Answer should be in a format: Internal IP of 1st Node (space) Internal IP od 2nd node (in a single line)
+ 
+ 
+ 13  g get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}' | sudo tee /root/internalIPList
+   14  sudo cat /root/internalIPList
+   
+   
+   ANOTHER SOLUTION 
+   ----------------
+   
+   
+   13  kubectl get nodes -o wide | grep -v "INTERNAL-IP" | awk '{print " " $6}' | tr -d “\n”
+   14  sudo cat /root/internalIPList
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+  Q24
+ We have worker 3 nodes in our cluster, create a DaemonSet (name prod-pod, image=nginx) on each node except worker node8.
+ 
+ 
+ 
+ 
+ 
+  alias g=kubectl
+   g get nodes
+   
+   for i in 6 7 8 9; do g describe node node$i |grep -i taint; done
+   g taint node node8 env=uat:NoSchedule
+   for i in 6 7 8 9; do g describe node node$i |grep -i taint; done
+   g create deployment prod-pod --image=nginx --dry-run=client -o yaml
+   g create deployment prod-pod --image=nginx --dry-run=client -o yaml |tee prod-pod.yaml
+   vi prod-pod.yaml
+   
+   
+   
+   
+   #######
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: prod-pod
+  name: prod-pod
+spec:
+  selector:
+    matchLabels:
+      app: prod-pod
+  template:
+    metadata:
+      labels:
+        app: prod-pod
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+   #######
+   
+   
+   
+   g create -f prod-pod.yaml
+   g get pods -o wide
+
+
+
+
+minikube addons enable ingress
+
+kubectl get pods -n ingress-nginx
+
+
+
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: name-virtual-host-ingress
+spec:
+  rules:
+  - host: blr.ibm.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: service1
+            port:
+              number: 80
+  - host: hyd.ibm.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: service2
+            port:
+              number: 80
+
+
+
+
